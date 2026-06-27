@@ -1,0 +1,71 @@
+import Link from "next/link";
+import { SubmitButton } from "@/components/submit-button";
+
+type Initial = {
+  name?: string;
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  country?: string | null;
+  feePercent?: string | null;
+  paymentTerms?: string | null;
+  notes?: string | null;
+};
+
+export function VendorForm({
+  action,
+  initial,
+  showCommission = true,
+}: {
+  action: (formData: FormData) => void | Promise<void>;
+  initial?: Initial;
+  showCommission?: boolean;
+}) {
+  const v = initial || {};
+  return (
+    <form action={action} className="card p-6 max-w-2xl space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="md:col-span-2">
+          <label htmlFor="name" className="label">Name</label>
+          <input id="name" name="name" required defaultValue={v.name || ""} className="input" />
+        </div>
+        <div>
+          <label htmlFor="contactName" className="label">Contact name</label>
+          <input id="contactName" name="contactName" defaultValue={v.contactName || ""} className="input" />
+        </div>
+        <div>
+          <label htmlFor="country" className="label">Country</label>
+          <input id="country" name="country" defaultValue={v.country || ""} className="input" />
+        </div>
+        <div>
+          <label htmlFor="contactEmail" className="label">Contact email</label>
+          <input id="contactEmail" name="contactEmail" type="email" defaultValue={v.contactEmail || ""} className="input" />
+        </div>
+        <div>
+          <label htmlFor="contactPhone" className="label">Contact phone</label>
+          <input id="contactPhone" name="contactPhone" defaultValue={v.contactPhone || ""} className="input" />
+        </div>
+        {showCommission && (
+          <>
+            <div>
+              <label htmlFor="feePercent" className="label">Fee % <span className="text-ink-muted font-normal">(of first-year CTC)</span></label>
+              <input id="feePercent" name="feePercent" inputMode="decimal" placeholder="e.g. 8.33" defaultValue={v.feePercent || ""} className="input" />
+            </div>
+            <div>
+              <label htmlFor="paymentTerms" className="label">Payment terms</label>
+              <input id="paymentTerms" name="paymentTerms" placeholder="e.g. Net 30, 90-day guarantee" defaultValue={v.paymentTerms || ""} className="input" />
+            </div>
+          </>
+        )}
+        <div className="md:col-span-2">
+          <label htmlFor="notes" className="label">Notes</label>
+          <textarea id="notes" name="notes" rows={3} defaultValue={v.notes || ""} className="input py-2" />
+        </div>
+      </div>
+      <div className="flex gap-2 pt-2">
+        <SubmitButton pendingLabel="Saving…">Save</SubmitButton>
+        <Link href="/vendors" className="btn-ghost">Cancel</Link>
+      </div>
+    </form>
+  );
+}

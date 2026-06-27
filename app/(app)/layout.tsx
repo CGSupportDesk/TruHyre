@@ -1,0 +1,52 @@
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
+import { and, eq, isNull, count } from "drizzle-orm";
+import { auth } from "@/auth";
+import { db } from "@/db";
+import { notifications } from "@/db/schema";
+import { AppShell } from "@/components/app-shell";
+import { getMyActionItemCount } from "@/lib/metrics";
+import { getFeatureStates } from "@/lib/features";
+
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
+  const u = session.user as { id?: string; fullName?: string; email?: string; role?: string };
+  if (!u.role) redirect("/login");
+  if (u.role === "client") redirect("/portal/client");
+  if (u.role === "vendor") redirect("/portal/vendor");
+  if (u.role === "candidate") redirect("/portal/candidate");
+
+  const flags = await getFeatureStates();
+
+  let unreadCount = 0;
+  let inboxCount = 0;
+  if (u.id) {
+    try {
+      const [r, ic] = await Promise.all([
+        db
+          .select({ n: count() })
+          .from(notifications)
+          .where(and(eq(notifications.userId, Number(u.id)), isNull(notifications.readAt))),
+        flags.inbox ? getMyActionItemCount(Number(u.id)) : Promise.resolve(0),
+      ]);
+      unreadCount = r[0]?.n ?? 0;
+      inboxCount = ic;
+    } catch {
+      unreadCount = 0;
+      inboxCount = 0;
+    }
+  }
+
+  return (
+    <AppShell
+      user={{ fullName: u.fullName || u.email || "", email: u.email || "", role: u.role as "admin" | "hr" | "hr_lite" }}
+      unreadCount={unreadCount}
+      inboxCount={inboxCount}
+      enabledFeatures={{ inbox: flags.inbox, command_palette: flags.command_palette, analytics_reports: flags.analytics_reports, activity_feed: flags.activity_feed, keyboard_shortcuts: flags.keyboard_shortcuts, dark_mode: flags.dark_mode, interview_kits: flags.interview_kits }}
+    >
+      {children}
+    </AppShell>
+  );
+}
