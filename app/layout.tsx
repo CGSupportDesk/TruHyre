@@ -39,10 +39,9 @@ export const viewport: Viewport = {
   ],
 };
 
-// Runs before paint to apply the saved/system theme — avoids a flash of the
-// wrong theme. Static, developer-authored string (no user input → no XSS).
-// Reads localStorage("theme")="dark"|"light"; falls back to OS preference.
-const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
+// Runs before paint to apply a saved dark preference and avoid a flash of the
+// wrong theme. Light is the default unless the user explicitly chose dark.
+const THEME_SCRIPT = `(function(){try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
