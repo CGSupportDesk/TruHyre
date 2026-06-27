@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
+import { checkAuthDatabase } from "@/lib/auth-diagnostics";
 
 export const runtime = "nodejs";
 
@@ -20,35 +20,7 @@ function envFlag(value?: string) {
 }
 
 export async function GET() {
-  const dbUrl = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL || process.env.DATABASE_URL;
-  const database: {
-    configured: boolean;
-    ping: "not_checked" | "ok" | "failed";
-    usersTable: "not_checked" | "ok" | "failed";
-    error?: string;
-  } = {
-    configured: Boolean(dbUrl),
-    ping: "not_checked",
-    usersTable: "not_checked",
-  };
-
-  if (dbUrl) {
-    try {
-      const sql = neon(dbUrl);
-      await sql`select 1 as ok`;
-      database.ping = "ok";
-      try {
-        await sql`select count(*)::int as count from users`;
-        database.usersTable = "ok";
-      } catch (e) {
-        database.usersTable = "failed";
-        database.error = e instanceof Error ? e.message : String(e);
-      }
-    } catch (e) {
-      database.ping = "failed";
-      database.error = e instanceof Error ? e.message : String(e);
-    }
-  }
+  const database = await checkAuthDatabase();
 
   return NextResponse.json({
     status: "ok",
@@ -64,6 +36,10 @@ export async function GET() {
       NEXTAUTH_URL_HOST: hostOf(process.env.NEXTAUTH_URL),
       NEXT_PUBLIC_APP_URL_HOST: hostOf(process.env.NEXT_PUBLIC_APP_URL),
       NODE_ENV: process.env.NODE_ENV ?? null,
+    },
+    seed: {
+      SEED_PASSWORD: envFlag(process.env.SEED_PASSWORD),
+      SEED_RESET: process.env.SEED_RESET ?? null,
     },
     database,
     checkedAt: new Date().toISOString(),

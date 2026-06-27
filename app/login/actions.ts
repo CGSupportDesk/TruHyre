@@ -2,9 +2,13 @@
 
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
+import { getLoginSetupError } from "@/lib/auth-diagnostics";
 
 export async function loginAction(formData: FormData): Promise<{ ok: false; error: string } | void> {
   const next = (formData.get("next") as string) || "/dashboard";
+  const setupError = await getLoginSetupError();
+  if (setupError) return { ok: false, error: setupError };
+
   try {
     await signIn("credentials", {
       email: formData.get("email"),

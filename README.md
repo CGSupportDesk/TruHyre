@@ -35,7 +35,7 @@ and reporting.
 | Client          | `client@truhyre.app`   | Client portal (sanitized)     |
 | Vendor          | `vendor@truhyre.app`   | Vendor portal                 |
 
-Initial password for all four comes from `SEED_PASSWORD`. Local development
+Initial password for seeded users comes from `SEED_PASSWORD`. Local development
 falls back to `ChangeMe!12345`; production seeding requires `SEED_PASSWORD`.
 Change seeded passwords after first login.
 
@@ -79,6 +79,8 @@ Open http://localhost:3000/ — you'll be redirected to the login page.
 4. **Environment Variables** → add `AUTH_SECRET` (`openssl rand -base64 32`),
    `SEED_PASSWORD`, the Google service account, and Gmail SMTP
    (`GMAIL_USER`, `GMAIL_APP_PASSWORD`).
+   If seeded users already exist and you need to reset their passwords to the
+   current `SEED_PASSWORD`, set `SEED_RESET=1` for one deploy, then remove it.
 5. First build runs `vercel-build`: `db/fix-types.ts` → `drizzle-kit push` →
    `db/seed.ts` → `next build` (migrate + seed happen automatically).
 6. Open the deploy URL → log in with seeded creds → **change the password immediately**.

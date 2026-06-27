@@ -23,8 +23,8 @@ const LEGACY_CLIENT_CONTACT = process.env.LEGACY_CLIENT_CONTACT;
 const LEGACY_USER_FULL_NAME = process.env.LEGACY_USER_FULL_NAME;
 
 async function main() {
-  const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-  if (!url) throw new Error("POSTGRES_URL or DATABASE_URL must be set");
+  const url = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!url) throw new Error("POSTGRES_URL_NON_POOLING, POSTGRES_URL, or DATABASE_URL must be set");
   if (!SEED_PASSWORD) throw new Error("SEED_PASSWORD must be set before seeding in production");
 
   const client = neon(url);

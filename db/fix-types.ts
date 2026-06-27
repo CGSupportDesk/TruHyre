@@ -16,7 +16,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { sql } from "drizzle-orm";
 
 async function main() {
-  const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  const url = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL || process.env.DATABASE_URL;
   if (!url) {
     console.log("[fix-types] no DB url, skipping");
     return;
