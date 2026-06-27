@@ -1,9 +1,13 @@
 import type { NextAuthConfig } from "next-auth";
 
+const fallbackAuthSecret =
+  "tru-hyre-stable-fallback-secret-2026-rotate-by-setting-AUTH_SECRET";
+
 export const authConfig = {
   pages: {
     signIn: "/login",
   },
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || fallbackAuthSecret,
   trustHost: true,
   session: { strategy: "jwt" },
   callbacks: {

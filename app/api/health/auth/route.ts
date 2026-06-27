@@ -55,6 +55,10 @@ export async function GET() {
     auth: {
       AUTH_SECRET: envFlag(process.env.AUTH_SECRET),
       NEXTAUTH_SECRET: envFlag(process.env.NEXTAUTH_SECRET),
+      EFFECTIVE_SECRET: {
+        present: Boolean(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "fallback"),
+        source: process.env.AUTH_SECRET ? "AUTH_SECRET" : process.env.NEXTAUTH_SECRET ? "NEXTAUTH_SECRET" : "code_fallback",
+      },
       AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST ?? null,
       AUTH_URL_HOST: hostOf(process.env.AUTH_URL),
       NEXTAUTH_URL_HOST: hostOf(process.env.NEXTAUTH_URL),

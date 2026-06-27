@@ -138,7 +138,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
-        const found = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        let found: (typeof users.$inferSelect)[];
+        try {
+          found = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        } catch (e) {
+          console.error("[auth] credentials lookup failed", e);
+          return null;
+        }
         const user = found[0];
         if (!user || !user.isActive) return null;
 
