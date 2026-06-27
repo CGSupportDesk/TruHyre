@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { ParsedResume } from "./parse";
+import { db } from "@/db";
+import { companyProfile } from "@/db/schema";
 import { getIntegration } from "@/lib/integrations";
 
 const SYSTEM = `You extract structured candidate data from resume text. Reply ONLY by calling the extract_candidate tool. Be conservative: leave a field null if it isn't explicitly stated. For experienceYears, sum the work-history dates if there's no explicit total. For CTC, return absolute numbers (LPA -> *100000, lakhs -> *100000, crore -> *10000000, k -> *1000). For noticePeriodDays, convert weeks/months to days (1 week = 7, 1 month = 30). Skills should be specific tools/technologies/methodologies, not generic words.`;
@@ -32,8 +34,18 @@ const DEFAULT_MODEL = "claude-haiku-4-5-20251001";
 
 export type AiResume = Omit<ParsedResume, "text">;
 
+async function isAiParsingEnabled(): Promise<boolean> {
+  try {
+    const row = (await db.select({ enabled: companyProfile.aiParsingEnabled }).from(companyProfile).limit(1))[0];
+    return row?.enabled ?? false;
+  } catch {
+    return false;
+  }
+}
+
 export async function parseResumeWithAi(rawText: string): Promise<AiResume | null> {
   if (!rawText || rawText.trim().length < 30) return null;
+  if (!(await isAiParsingEnabled())) return null;
   // Resolve key + model from admin Integrations (DB) → env fallback.
   const r = await getIntegration("anthropic");
   const apiKey = r.values.apiKey;

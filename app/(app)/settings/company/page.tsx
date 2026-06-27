@@ -43,7 +43,7 @@ export default async function CompanyPage() {
           <legend className="text-xs uppercase tracking-wide text-ink-muted px-1">Resume parsing</legend>
           <Toggle name="parsingEnabled" label="Regex extractor (default)" defaultChecked={p.parsingEnabled} />
           <Toggle name="ocrEnabled" label="OCR (image-only PDFs)" defaultChecked={p.ocrEnabled} hint="Phase 4 — not wired yet." />
-          <Toggle name="aiParsingEnabled" label="AI-assisted parsing (Anthropic / OpenAI)" defaultChecked={p.aiParsingEnabled} hint="Phase 4 — not wired yet." />
+          <Toggle name="aiParsingEnabled" label="AI-assisted parsing (Anthropic)" defaultChecked={p.aiParsingEnabled} hint="Uses Anthropic when enabled and configured." />
         </fieldset>
 
         <div className="flex gap-2 pt-2">

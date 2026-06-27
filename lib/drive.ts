@@ -66,6 +66,10 @@ async function uploadToDrive(
   const [drive, folderId] = await Promise.all([getDriveClient(), getFolderId()]);
 
   if (!drive || !folderId) {
+    const message = "Google Drive is not configured. Set GOOGLE_SERVICE_ACCOUNT_JSON and GDRIVE_RESUMES_FOLDER_ID.";
+    if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEV_DRIVE_STUBS !== "1") {
+      throw new Error(message);
+    }
     console.warn("[drive] (dev) skipping upload — missing service account or folder id", { name });
     const stub = `dev-${subPrefix}-${Date.now()}-${safeName(name)}`;
     return { driveFileId: stub, webViewLink: null, name };
